@@ -44,13 +44,12 @@ async def get_item(key: str, chamada: str,
                    filters: Optional[str] = None):
     if key == "f0d318283lmzanc81234asd234":
         initial_request_url = f"{BASE_URL}{chamada}"
-	all_pages_data = get_all_pages_data(initial_url=initial_request_url, 
+        all_pages_data = get_all_pages_data(initial_url=initial_request_url, 
                                         head={"Authorization": f"Basic {os.environ.get('AUTH_HEADER')}"},
                                         filters=filters)
+    else: all_pages_data = "access denied"
 
-        return all_pages_data
-    else:
-	return "access denied"
+    return all_pages_data
 
 # %%
 
