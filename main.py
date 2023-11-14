@@ -4,9 +4,7 @@ from fastapi import FastAPI
 from typing import Optional
 import os
 # from dotenv import load_dotenv
-
 # load_dotenv()
-
 
 BASE_URL = "https://api.pagar.me/core/v5/"
 
@@ -19,27 +17,28 @@ def get_all_pages_data(initial_url, head, filters=None):
     all_data = []
     size = 200  # The number of items you want per page
     page = 1  # Start with the first page
-    
     if filters:
         current_url = f"{initial_url}?page={page}&size={size}&navigation=True&{filters}"
     else:
         current_url = f"{initial_url}?page={page}&size={size}&navigation=True"
-    
     # Get the first page to retrieve the total count
     response_data = get_data_from_page(current_url, head)
-    total_items = response_data['paging']['total']
-    total_pages = (total_items + size - 1) // size  # Calculate total number of pages
-    
-    # Now iterate through all pages and collect the data
-    for page in range(1, total_pages + 1):
-        if filters:
-            current_url = f"{initial_url}?page={page}&size={size}&navigation=True&{filters}"
-        else:
-            current_url = f"{initial_url}?page={page}&size={size}&navigation=True"
-        
-        response_data = get_data_from_page(current_url, head)
-        all_data.extend(response_data['data'])  
-
+    try:
+        total_items = response_data['paging']['total']
+        total_pages = (total_items + size - 1) // size  # Calculate total number of pages
+    except:
+        total_pages = 0
+    if total_pages > 0:
+        # Now iterate through all pages and collect the data
+        for page in range(1, total_pages + 1):
+            if filters:
+                current_url = f"{initial_url}?page={page}&size={size}&navigation=True&{filters}"
+            else:
+                current_url = f"{initial_url}?page={page}&size={size}&navigation=True"
+            response_data = get_data_from_page(current_url, head)
+            all_data.extend(response_data['data'])  
+    else:
+        all_data = response_data['data']
     return all_data
 
 #%%
@@ -55,8 +54,6 @@ async def get_item(key: str,
                                         head={"Authorization": f"Basic {os.environ.get('AUTH_HEADER')}"},
                                         filters=filters)
     else: all_pages_data = "access denied"
-
     return all_pages_data
 
 # %%
-
